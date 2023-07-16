@@ -12,6 +12,12 @@ import torch.utils
 import torchvision.datasets as dset
 import torch.backends.cudnn as cudnn
 
+import torchvision.transforms as transforms
+from torchvision.datasets import ImageFolder
+from torch.utils.data import DataLoader
+from torch.utils.data import SubsetRandomSampler
+import random
+
 from torch.autograd import Variable
 from models.snndarts_retrain.LEAStereo import LEAStereo
 import fitlog
@@ -76,13 +82,16 @@ CIFAR_CLASSES = 10
 
 def main():
 
+  args.batch_size = 40
+  args.epochs = 50
+
   np.random.seed(args.seed)
   cudnn.benchmark = True
   torch.manual_seed(args.seed)
   cudnn.enabled=True
   torch.cuda.manual_seed(args.seed)
   logging.info("args = %s", args)
-  leastereo = LEAStereo(init_channels=3, args=args)
+  leastereo = LEAStereo(init_channels=1, args=args)
   model = leastereo
   model = model.cuda()
 
@@ -99,38 +108,49 @@ def main():
 
   optimizer_b = torch.optim.Adam(model.arch_parameters(), lr=0.01, betas=(0.9,0.999))
 
-  train_transform, valid_transform = utils._data_transforms_cifar10(args)
-  train_data = dset.CIFAR10(root=args.data, train=True, download=True, transform=train_transform)
-  valid_data = dset.CIFAR10(root=args.data, train=False, download=True, transform=valid_transform)
+#=======================================================================================
+  # 加载实验数据集
+  transform = transforms.Compose(
+    [transforms.Grayscale(),# 转成单通道的灰度图
+     # 把值转成Tensor
+    transforms.ToTensor()])
 
-  train_queue = torch.utils.data.DataLoader(
-      train_data, batch_size=args.batch_size, shuffle=True, pin_memory=True, num_workers=2)
+  dataset = ImageFolder("/kaggle/input/ddos-2019/Dataset-4/Dataset-4", 
+                      transform=transform)
 
-  valid_queue = torch.utils.data.DataLoader(
-      valid_data, batch_size=args.batch_size, shuffle=False, pin_memory=True, num_workers=2)
+  # 切分，训练集和验证集
+  random.seed(0)
+  indices = list(range(len(dataset)))
+  random.shuffle(indices)
+  split_point = int(0.8*len(indices))
+  train_indices = indices[:split_point]
+  test_indices = indices[split_point:]
 
+  train_queue = DataLoader(dataset, batch_size=batch_size,
+                          sampler=SubsetRandomSampler(train_indices))
+  valid_queue = DataLoader(dataset, batch_size=batch_size,
+                         sampler=SubsetRandomSampler(test_indices))
+#=======================================================================================
   scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, float(args.epochs))
   best_acc = 0
   for epoch in range(args.epochs):
-    logging.info('epoch %d lr %e', epoch, scheduler.get_last_lr()[0])
+    print('epoch %d lr %e', epoch, scheduler.get_last_lr()[0])
     # model.drop_path_prob = args.drop_path_prob * epoch / args.epochs
 
     train_acc, train_obj = train(train_queue, model, criterion, optimizer, optimizer_b, epoch)
-    logging.info('train_acc %f', train_acc)
-    fitlog.add_metric(train_acc,epoch,'train_top1')
-    fitlog.add_metric(train_obj,epoch,'train_loss')
+    print('train_acc %f', train_acc)
 
     valid_acc, valid_obj = infer(valid_queue, model, criterion)
-    logging.info('valid_acc %f', valid_acc)
-    fitlog.add_metric(valid_acc,epoch,'valid_top1')
-    fitlog.add_metric(valid_obj,epoch,'valid_loss')
+    print('valid_acc %f', valid_acc)
     
-    if valid_acc >= best_acc:
-      best_acc = valid_acc
-      utils.save(model, os.path.join(args.save, 'weights.pt'))
+    # 每轮保留模型
+    torch.save(model, '/kaggle/working/medel-'+str(epoch)+'.pt')
+
       
     scheduler.step()
-fitlog.finish()
+
+  # 完成训练后再次保存模型
+  torch.save(model, '/kaggle/working/SpikeDHS.pt')
 
 def convert_str2index(this_str, is_b=False, is_wight=False, is_cell=False):
     if is_wight:
