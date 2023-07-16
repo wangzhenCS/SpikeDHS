@@ -126,9 +126,9 @@ def main():
   train_indices = indices[:split_point]
   test_indices = indices[split_point:]
 
-  train_queue = DataLoader(dataset, batch_size=batch_size,
+  train_queue = DataLoader(dataset, batch_size=args.batch_size,
                           sampler=SubsetRandomSampler(train_indices))
-  valid_queue = DataLoader(dataset, batch_size=batch_size,
+  valid_queue = DataLoader(dataset, batch_size=args.batch_size,
                          sampler=SubsetRandomSampler(test_indices))
 #=======================================================================================
   scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, float(args.epochs))
