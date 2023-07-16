@@ -144,7 +144,8 @@ def main():
     print('valid_acc %f', valid_acc)
     
     # 每轮保留模型
-    torch.save(model, '/kaggle/working/medel-'+str(epoch)+'.pt')
+    if epoch%5 == 0:
+      torch.save(model, '/kaggle/working/medel-'+str(epoch)+'.pt')
 
       
     scheduler.step()
