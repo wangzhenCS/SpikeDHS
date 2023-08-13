@@ -115,7 +115,11 @@ def main():
      # 把值转成Tensor
     transforms.ToTensor()])
 
-  dataset = ImageFolder("/kaggle/input/ddos-2019/Dataset-4/Dataset-4", 
+  #dataset = ImageFolder("/kaggle/input/ddos-2019/Dataset-4/Dataset-4", 
+  #                    transform=transform)
+  #dataset = ImageFolder("/kaggle/input/cse-cic-ids2018-for-snn", 
+  #                    transform=transform)
+  dataset = ImageFolder("/kaggle/input/nsl-kdd-for-snn/data", 
                       transform=transform)
 
   # 切分，训练集和验证集
