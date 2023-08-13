@@ -155,7 +155,7 @@ def main():
     scheduler.step()
 
   # 完成训练后再次保存模型
-  torch.save(model, '/kaggle/working/SpikeDHS.pt')
+  torch.save(model, '/kaggle/working/SpikeDHS-NSL.pt')
 
 def convert_str2index(this_str, is_b=False, is_wight=False, is_cell=False):
     if is_wight:
