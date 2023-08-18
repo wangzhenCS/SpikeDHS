@@ -115,10 +115,10 @@ def main():
      # 把值转成Tensor
     transforms.ToTensor()])
 
-  #dataset = ImageFolder("/kaggle/input/ddos-2019/Dataset-4/Dataset-4", 
-  #                    transform=transform)
-  dataset = ImageFolder("/kaggle/input/cse-cic-ids2018-for-snn", 
+  dataset = ImageFolder("/kaggle/input/ddos-2019/Dataset-4/Dataset-4", 
                       transform=transform)
+  #dataset = ImageFolder("/kaggle/input/cse-cic-ids2018-for-snn", 
+  #                    transform=transform)
   #dataset = ImageFolder("/kaggle/input/nsl-kdd-for-snn/data", 
   #                    transform=transform)
 
@@ -148,7 +148,7 @@ def main():
     print('valid_acc %f', valid_acc)
     
     # 每轮保留模型
-    if epoch%5 == 0:
+    if epoch%1 == 0:
       torch.save(model, '/kaggle/working/medel-'+str(epoch)+'.pt')
 
       
@@ -240,7 +240,8 @@ def train(train_queue, model, criterion, optimizer, optimizer_b, epoch):
               value.requires_grad_(False)
           else:
               value.requires_grad_(True)
-        logits, logits_aux = model(input, param)
+        #logits, logits_aux = model(input, param)
+        logits, logits_aux = model(input)
         loss = criterion(logits, target)
         if args.auxiliary:
           loss_aux = criterion(logits_aux, target)
@@ -255,7 +256,8 @@ def train(train_queue, model, criterion, optimizer, optimizer_b, epoch):
         optimizer_b.zero_grad()
         for parameter in model.parameters():
             parameter.requires_grad_(True)
-        logits, logits_aux = model(input, param)
+        #logits, logits_aux = model(input, param)
+        logits, logits_aux = model(input)
         loss = criterion(logits, target)
         if args.auxiliary:
           loss_aux = criterion(logits_aux, target)
@@ -295,7 +297,8 @@ def train(train_queue, model, criterion, optimizer, optimizer_b, epoch):
 
     optimizer.zero_grad()
     optimizer_b.zero_grad()
-    logits, logits_aux = model(input, param)
+    #logits, logits_aux = model(input, param)
+    logits, logits_aux = model(input)
     loss = criterion(logits, target)
     if args.auxiliary:
       loss_aux = criterion(logits_aux, target)
@@ -330,7 +333,8 @@ def infer(valid_queue, model, criterion):
     input = Variable(input, volatile=True).cuda()
     target = Variable(target, volatile=True).cuda()
 
-    logits, _ = model(input, param)
+    #logits, _ = model(input, param)
+    logits, _ = model(input)
     loss = criterion(logits, target)
 
     prec1, prec5 = utils.accuracy(logits, target, topk=(1, 5))
