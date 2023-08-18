@@ -35,7 +35,9 @@ class LEAStereo(nn.Module):
     def weight_parameters(self):
         return [param for name, param in self.named_parameters() if 'alpha_diffb' not in name]
 
-    def forward(self, input, param): 
+    #def forward(self, input, param): 
+    def forward(self, input): 
+        param = {'mode':'optimal'}
         param['snn_output'] = 'mem'
 
         
