@@ -115,7 +115,7 @@ def main():
      # 把值转成Tensor
     transforms.ToTensor()])
 
-  dataset = ImageFolder("/kaggle/input/ddos-2019/Dataset-4/Dataset-4", 
+  dataset = ImageFolder("/kaggle/input/thesis-iomt2024/thesis", 
                       transform=transform)
   #dataset = ImageFolder("/kaggle/input/cic-2018-for-snn", 
   #                    transform=transform)
@@ -148,14 +148,14 @@ def main():
     print('valid_acc %f', valid_acc)
     
     # 每轮保留模型
-    if epoch%1 == 0:
+    if epoch%5 == 0:
       torch.save(model, '/kaggle/working/medel-'+str(epoch)+'.pt')
 
       
     scheduler.step()
 
   # 完成训练后再次保存模型
-  torch.save(model, '/kaggle/working/SpikeDHS-CIC.pt')
+  torch.save(model, '/kaggle/working/SpikeDHS-iomt2024.pt')
 
 def convert_str2index(this_str, is_b=False, is_wight=False, is_cell=False):
     if is_wight:
