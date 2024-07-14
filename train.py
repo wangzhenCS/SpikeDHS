@@ -25,13 +25,13 @@ import torch.nn.functional as F
 
 parser = argparse.ArgumentParser("cifar")
 parser.add_argument('--data', type=str, default='../data', help='location of the data corpus')
-parser.add_argument('--batch_size', type=int, default=50, help='batch size')
+parser.add_argument('--batch_size', type=int, default=40, help='batch size')
 parser.add_argument('--learning_rate', type=float, default=0.025, help='init learning rate')
 parser.add_argument('--momentum', type=float, default=0.9, help='momentum')
 parser.add_argument('--weight_decay', type=float, default=3e-4, help='weight decay')
 parser.add_argument('--report_freq', type=float, default=50, help='report frequency')
-parser.add_argument('--epochs', type=int, default=600, help='num of training epochs')
-parser.add_argument('--init_channels', type=int, default=36, help='num of init channels')
+parser.add_argument('--epochs', type=int, default=50, help='num of training epochs')
+parser.add_argument('--init_channels', type=int, default=1, help='num of init channels')
 parser.add_argument('--layers', type=int, default=8, help='total number of layers')
 parser.add_argument('--model_path', type=str, default='saved_models', help='path to save the model')
 parser.add_argument('--auxiliary', action='store_true', default=False, help='use auxiliary tower')
@@ -77,7 +77,7 @@ else:
     # opt.fitlog_path = os.path.join(log_path,fitlog.get_log_folder())
 
 
-CIFAR_CLASSES = 10
+CIFAR_CLASSES = 6
 
 
 def main():
